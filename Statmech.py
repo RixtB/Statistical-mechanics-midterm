@@ -1,8 +1,16 @@
+#Author: Rixt Bosma
+#Contact: r.bosma.8@student.rug.nl
+#This script was used to evaluate the efficiency of a solar cell in the maximum thermodynamic efficiciency limit.
+#The script can be used for earth or Sirius A bb ratiation calculations, for this variable Temp should be adjusted accordingly
+
 from mpmath import *
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 mp.dps = 15; mp.pretty = True
+
+#Temperature of the black body
+Temp = 5800                                 #5800 for earth, 9940 for Sirius A
 
 #for plotting with readable axis lables
 font = {'family': 'Arial',
@@ -13,8 +21,7 @@ plt.rc('font', **font)
 #defining variables
 k = 1.380649*10**-23                        #boltzmann's constant
 eV = 1.60217*10**-19                        #converting from eV to joules
-Temp = 5800                                 #5800 for earth, 9940 for Sirius A
-step = 0.05                                 #stepsize in energie for the plot
+step = 0.05                                 #stepsize in energie for the plot (eV)
 
 #function efficiency takes bandgap in eV and temparature in K and outputs the efficiency of the solar cell
 def efficiency(Egap,T):
@@ -24,7 +31,7 @@ def efficiency(Egap,T):
     return numerator / denumerator
 
 
-#function n_absorbed takes bandgap in eV and temparature in K and outputs the fraction of absorbed photons by the solar cell
+#function efficinecy tandem takes bandgap in eV of the second cell (in addtion to Si) and temparature in K and outputs the fraction of absorbed photons by the solar cell
 def efficiencyTandem(Egap1,Egap2,T):        #Egap1 > Egap2
     y1 = Egap1 * eV / (k*T)
     y2 = Egap2 * eV/ (k*T)
@@ -49,20 +56,25 @@ for i in energies:                                      #writing each efficiency
 max_eff = np.amax(efficiencies)
 energie_max = energies[np.where(efficiencies== max_eff)]
 print("The maximum efficiency occurs at a bandgap energy of " + str(energie_max[0]) +" eV and is " + str(round(max_eff,3)*100) + " percent for a single junciton device.")
-
-
+#the same thing for the tandem devices
 max_eff = np.amax(efficienciesTandemBelow)
 energie_max = energies[np.where(efficienciesTandemBelow == max_eff)]
-print("The maximum efficiency occurs at a bandgap energy of " + str(energie_max[0]) +" eV and is " + str(round(max_eff,3)*100) + " percent for a tandem device with the Si on top.")
-
+print("The maximum efficiency occurs at a bandgap energy of " + str(energie_max[0]) +" eV and is " + str(round(max_eff,3)*100) + " percent for a tandem device with the Si on the bottom.")
 max_eff = np.amax(efficienciesTandemAbove)
 energie_max = energies[np.where(efficienciesTandemAbove == max_eff)]
 print("The maximum efficiency occurs at a bandgap energy of " + str(energie_max[0]) +" eV and is " + str(round(max_eff,3)*100) + " percent for a tandem device with the Si on top.")
 
-#plotting energies and efficiencies for single layer and tandem devices
+#plotting energies and efficiencies for single layer devices (figure 1 and 2 in the report)
 plt.plot(energies, efficiencies*100)
-#plt.plot(energies, efficienciesTandemAbove*100)
-#plt.plot(energies, efficienciesTandemBelow*100)
+plt.xlabel('Bandgap energie (eV)')
+plt.ylabel('Efficiency (%)')
+plt.tight_layout()
+plt.show()
+
+#plotting energies and efficiencies for single layer and tandem devices (figure 3 in the report)
+plt.plot(energies, efficiencies*100)
+plt.plot(energies, efficienciesTandemBelow*100)
+plt.plot(energies, efficienciesTandemAbove*100)
 plt.xlabel('Bandgap energie (eV)')
 plt.ylabel('Efficiency (%)')
 plt.legend(['Single cell', 'Tandem, Si on top', 'Tandem, Si on bottom'])
